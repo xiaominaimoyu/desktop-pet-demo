@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)]()
 
-一只运行在桌面上的像素风宠物，能**实时感知 AI 编程工具的工作状态**，根据编码进度自动切换动画、弹出气泡提示。支持 Claude Code、opencode 等工具的 Hook/MCP 深度集成，也兼容任意终端工具的被动监控模式。
+一只运行在桌面上的像素风宠物，能**实时感知 AI 编程工具的工作状态**，根据编码进度自动切换动画、弹出气泡提示。支持 Claude Code、opencode 等工具的 Hook/MCP 深度集成，也兼容任意终端工具的被动监控模式（本项目还只是半成品）。
 
 ## 快速开始
 

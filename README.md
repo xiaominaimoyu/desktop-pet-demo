@@ -167,4 +167,9 @@ MIT
 
 ---
 
-*Inspired by ameath (Python/Tkinter desktop pet) and aemeath_withclaude (Tauri/Rust + Claude Code integration)*
+## 参考项目
+
+本项目参考了以下开源项目：
+
+- [aemeath_withclaude](https://github.com/77wliNd/aemeath_withclaude) — Tauri/Rust 桌宠，Claude Code Hook 集成
+- [ameath](https://gitee.com/lzy-buaa-jdi/ameath) — Python/Tkinter 桌宠，丰富的动画与交互

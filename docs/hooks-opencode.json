@@ -1,0 +1,29 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "_comment": "opencode 桌宠插件配置 — 将此内容合并到 ~/.config/opencode/opencode.jsonc",
+
+  "plugin": ["./plugins/opencode/desktop-pet.ts"],
+
+  "experimental": {
+    "hook": {
+      "file_edited": {
+        "**/*": [
+          {
+            "command": ["curl", "-s", "-X", "POST", "http://127.0.0.1:9527/api/hook/working", "-H", "Content-Type: application/json", "-d", "{\"tool_name\":\"Write\"}"],
+            "environment": {
+              "FILE_PATH": "{event.properties.file}"
+            }
+          }
+        ]
+      },
+      "session_completed": [
+        {
+          "command": ["curl", "-s", "http://127.0.0.1:9527/api/hook/idle"],
+          "environment": {
+            "SESSION_ID": "{event.properties.sessionID}"
+          }
+        }
+      ]
+    }
+  }
+}

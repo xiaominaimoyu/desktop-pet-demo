@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>桌宠</title>
+  <link rel="stylesheet" href="pet.css">
+</head>
+<body>
+  <div id="pet-container">
+    <div id="sprite"></div>
+    <div id="gif-container" class="hidden"><div id="gif-sprite-wrap"></div></div>
+    <div id="bubble" class="hidden"></div>
+    <div id="ask-bubble" class="hidden">
+      <div id="ask-prompt"></div>
+      <div id="ask-choices"></div>
+      <div id="ask-confirm-row" class="hidden">
+        <button id="ask-confirm-yes">确认</button>
+        <button id="ask-confirm-no">否定</button>
+      </div>
+      <div id="ask-input-row">
+        <input id="ask-input" type="text" placeholder="输入...">
+        <div id="ask-input-btns">
+          <button id="ask-back">返回</button>
+          <button id="ask-send">发送</button>
+        </div>
+      </div>
+    </div>
+    <div id="quick-menu" class="hidden">
+      <button class="quick-menu-item" data-action="message">💬 发消息</button>
+      <button class="quick-menu-item" data-action="adapter-status">🔌 适配器状态</button>
+      <button class="quick-menu-item" data-action="adapter-select">🎯 选择适配器</button>
+      <button class="quick-menu-item" data-action="adapter-auto">⚙ 自动检测</button>
+      <button class="quick-menu-item" data-action="adapter-scan">↻ 立即扫描</button>
+      <button class="quick-menu-item" data-action="movement-mode">🏃 运动模式</button>
+      <button class="quick-menu-item" data-action="sleep">💤 休眠</button>
+      <button class="quick-menu-item" data-action="exit">⏻ 退出</button>
+      <button class="quick-menu-item" data-action="toggle-mode">🔄 切换GIF模式</button>
+      <button class="quick-menu-item" data-action="cancel">✕ 取消</button>
+    </div>
+
+    <!-- Adapter Selection Modal -->
+    <div id="adapter-modal" class="hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>选择 CLI 适配器</h3>
+          <button class="modal-close" data-action="close-adapter-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="adapter-mode-section">
+            <label class="mode-option">
+              <input type="radio" name="adapter-mode" value="auto" id="mode-auto">
+              <span class="mode-label">
+                <strong>自动检测</strong>
+                <small>根据运行进程自动选择适配器</small>
+              </span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="adapter-mode" value="manual" id="mode-manual">
+              <span class="mode-label">
+                <strong>手动指定</strong>
+                <small>强制使用特定适配器</small>
+              </span>
+            </label>
+          </div>
+          <div class="adapter-list" id="adapter-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-primary" data-action="apply-adapter">应用</button>
+          <button class="modal-btn modal-btn-secondary" data-action="close-adapter-modal">取消</button>
+        </div>
+      </div>
+    </div>
+    <div id="pending-dot" class="hidden"></div>
+  </div>
+  <script src="sprite-animator.js"></script>
+  <script src="gif-animator.js"></script>
+  <script src="bubble.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

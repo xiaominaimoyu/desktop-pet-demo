@@ -1,0 +1,195 @@
+# 桌宠行为动作命令清单
+
+> 本文档梳理项目中已实现的行为动作命令（动画、气泡、交互等），并列出尚未开发或未完整集成的部分，便于后续排期与补齐。
+
+---
+
+## 一、已实现并集成的命令
+
+### 1. Tauri Commands（前端 → 后端调用）
+
+文件：[`src-tauri/src/main.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/main.rs)
+
+| 命令 | 作用 | 前端调用点 |
+|------|------|------------|
+| `start_drag` | 拖动桌宠窗口 | [`src/app.js:63`](file:///d:/project file/Desktop_Pet/src/app.js#L63) 鼠标按下移动时 |
+| `hide_window` | 隐藏窗口（模拟睡眠） | [`src/app.js:468`](file:///d:/project file/Desktop_Pet/src/app.js#L468) 右键菜单"睡眠" |
+| `exit_app` | 退出应用 | [`src/app.js:471`](file:///d:/project file/Desktop_Pet/src/app.js#L471) 右键菜单"退出" |
+| `get_passthrough` | 查询鼠标穿透状态 | （未在 JS 中直接调用） |
+| `set_passthrough` | 设置鼠标穿透开关 | [`src/app.js:43, 46`](file:///d:/project file/Desktop_Pet/src/app.js#L43) 拖动前后切换 |
+| `get_port_info` | 查询 HTTP/MCP 绑定端口 | （未在 JS 中调用） |
+| `get_movement_mode` | 获取当前运动模式 | （仅后端使用） |
+| `set_movement_mode` | 设置运动模式 | （仅后端使用） |
+| `toggle_movement_mode` | 切换运动模式 | [`src/app.js:88, 461`](file:///d:/project file/Desktop_Pet/src/app.js#L88) 双击桌宠 / 右键菜单 |
+| `get_adapter_status` | 获取适配器状态 | [`src/app.js:441`](file:///d:/project file/Desktop_Pet/src/app.js#L441) |
+| `set_adapter_auto` | 切回自动模式 | [`src/app.js:447`](file:///d:/project file/Desktop_Pet/src/app.js#L447) |
+| `set_adapter_manual` | 手动锁定适配器 | （前端未直接绑定） |
+| `scan_adapters_now` | 立即扫描适配器 | [`src/app.js:453`](file:///d:/project file/Desktop_Pet/src/app.js#L453) |
+
+---
+
+### 2. MCP 工具（CLI 适配器 → 桌宠）
+
+文件：[`src-tauri/src/mcp.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs)
+
+| 工具 | 作用 | 实现状态 |
+|------|------|----------|
+| `pet_show` | 显示自定义气泡消息 | ✅ 完整 |
+| `pet_ask` | 向用户提问（自动判断 text/select） | ✅ 完整 |
+| `pet_play` | 强制播放指定动画 | ⚠️ 枚举值受限（见下文） |
+| `pet_get_user_input` | 阻塞等待用户输入（text/confirm/select） | ✅ 完整 |
+
+---
+
+### 3. 动画状态机
+
+文件：[`src-tauri/src/state.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/state.rs)
+
+`PetState` 枚举共 **15 种**状态：
+
+| 状态 | animation_name | core_signal | overlay | 默认气泡 |
+|------|----------------|-------------|---------|----------|
+| `Idle` | `idle` | `idle` | — | （空） |
+| `Thinking` | `waiting` | `waiting` | — | （空） |
+| `Running` | `running` | `running` | — | 根据 tool 动态 |
+| `Review` | `review` | `ready` | — | "搞定!" |
+| `Failed` | `failed` | `idle` | `error` | "好像出问题了..." |
+| `Waving` | `waving` | `idle` | — | "桌宠已上线~" |
+| `Jumping` | `jumping` | `idle` | — | （空） |
+| `Chatting` | `chatting` | `running` | — | "正在组织回复..." |
+| `Fetching` | `fetching` | `running` | — | "正在获取网络内容..." |
+| `Searching` | `searching` | `running` | — | "正在搜索网络..." |
+| `Analyzing` | `analyzing` | `running` | — | "正在分析..." |
+| `Building` | `building` | `running` | — | "正在构建..." |
+| `Celebrating` | `celebrating` | `ready` | — | "太棒了!" |
+| `Permission` | `waving` | `waiting` | `permission` | "等待指示..." |
+| `Sleeping` | `sleeping` | `idle` | `sleep` | "zzz..." |
+
+---
+
+### 4. 动画资源
+
+**Sprite 模式**（默认）
+
+- 资源：`src/spritesheet.webp`
+- 帧映射：`src/validation.json`
+- 涵盖状态：`idle` / `running-right` / `running-left` / `waving` / `jumping` / `failed` / `waiting` / `running` / `review` / `chatting` / `fetching` / `searching` / `analyzing` / `building` / `celebrating` / `sleeping`
+- 控制器：[`src/sprite-animator.js`](file:///d:/project file/Desktop_Pet/src/sprite-animator.js)
+
+**GIF 模式**（备用，按 `Ctrl+G` 切换）
+
+- 控制器：[`src/gif-animator.js`](file:///d:/project file/Desktop_Pet/src/gif-animator.js)
+- `stateMap` 映射：
+  ```js
+  'idle'      → idle1.gif
+  'waving'    → idle1.gif
+  'jumping'   → idle1.gif
+  'running'   → move.gif
+  'drag'      → drag.gif
+  'screen1'   ~ 'screen7' → screenN.gif
+  ```
+
+---
+
+### 5. 气泡系统
+
+文件：[`src/bubble.js`](file:///d:/project file/Desktop_Pet/src/bubble.js)
+
+| 方法 | 行为 |
+|------|------|
+| `show(text)` | 临时显示 4 秒；若已有气泡显示则入队 |
+| `showPersistent(text)` | 持续显示（不自动消失），用于工作/等待状态 |
+| `showInteractive(prompt, type, options, placeholder)` | 交互式气泡（text/confirm/select） |
+| `showWithInput(prompt, placeholder)` | 文本输入气泡（`showInteractive` 的 text 快捷方式） |
+| `showWithOptions(prompt, options)` | 选项选择气泡（`showInteractive` 的 select 快捷方式） |
+| `hide()` | 隐藏普通气泡并清空队列 |
+| `hideInteractive()` | 隐藏交互式气泡 |
+| `showQuickMenu()` / `hideQuickMenu()` | 显示/隐藏右键菜单 |
+| `startPendingPoll()` / `stopPendingPoll()` | 轮询 `/api/user/pending` 显示红点 |
+
+---
+
+### 6. 挥手/动画触发点汇总
+
+| 触发场景 | 代码位置 | 效果 |
+|----------|----------|------|
+| 应用启动 | [`src/app.js:32-33`](file:///d:/project file/Desktop_Pet/src/app.js#L32) | `animator.play('waving')` + `bubble.show('桌宠已上线~')` |
+| 启动事件广播 | [`src-tauri/src/main.rs:526-527`](file:///d:/project file/Desktop_Pet/src-tauri/src/main.rs#L526) | 后端发送 `StateChangeEvent{ animation: "waving" }` |
+| 双击桌宠 | [`src/app.js:78-90`](file:///d:/project file/Desktop_Pet/src/app.js#L78) | 切换运动模式 + 气泡提示 |
+| idle 8 秒后 | [`src/app.js:505-513`](file:///d:/project file/Desktop_Pet/src/app.js#L505) | 在 `jumping`/`waving` 之间循环 |
+| 右键菜单"运动模式" | [`src/app.js:455-465`](file:///d:/project file/Desktop_Pet/src/app.js#L455) | 切换模式 + 气泡提示 |
+| 适配器自动切换 | [`src/app.js:184-198`](file:///d:/project file/Desktop_Pet/src/app.js#L184) | 气泡显示"已连接 XX"或"未检测到 CLI 工具" |
+| MCP `pet_play` | [`src-tauri/src/mcp.rs:211-222`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs#L211) | 强制播放指定状态 |
+| MCP `pet_show` | [`src-tauri/src/mcp.rs:154-167`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs#L154) | 显示自定义气泡 |
+| MCP `pet_ask` / `pet_get_user_input` | [`src-tauri/src/mcp.rs:168-209`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs#L168) | 弹出交互式气泡 |
+
+---
+
+## 二、未开发 / 未完整集成的部分
+
+### 1. `pet_play` 工具的状态枚举受限
+[`src-tauri/src/mcp.rs:103`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs#L103) 中 `pet_play.state` 仅支持：
+
+```
+["idle", "thinking", "running", "review", "failed", "waving", "jumping"]
+```
+
+但 `PetState` 实际定义了 15 种状态，**`chatting` / `fetching` / `searching` / `analyzing` / `building` / `celebrating` / `permission` / `sleeping` 无法通过 MCP 工具主动触发**。
+
+### 2. `pet_play` 的 `duration_ms` 参数未生效
+[`src-tauri/src/mcp.rs:211-222`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs#L211) 接收 `duration_ms` 但未做定时恢复，动画会一直播放直到下一个状态变化事件。
+
+### 3. `Sleeping` 状态缺少专属动画资源
+- [`src/gif-animator.js:13-26`](file:///d:/project file/Desktop_Pet/src/gif-animator.js#L13) 的 `stateMap` 中**没有 `sleeping` 项**
+- `src/validation.json` 中也**没有 `sleeping` 状态的 sprite 帧**
+- 后端状态机完整支持，但前端无对应资源 → 实际播放时**降级为 idle 动画**
+
+### 4. `screen1` ~ `screen7` 状态未触发
+[`src/gif-animator.js:21-26`](file:///d:/project file/Desktop_Pet/src/gif-animator.js#L21) 定义了 7 个 screen 状态，但：
+- 后端 `PetState` 枚举**无对应状态**
+- 无任何触发入口
+- 属于**孤立配置**，建议移除或补充语义
+
+### 5. 缺少 HTTP REST 动作接口
+`mcp.rs` 只暴露 JSON-RPC（MCP）协议，没有 `GET /api/pet/wave` / `POST /api/pet/celebrate` 这类 REST 端点供外部工具快速调用。
+
+### 6. 缺少 Tauri 通用动作 command
+没有 `trigger_animation(state, duration_ms)` 这类 Tauri command，前端右键菜单无法直接触发"挥手/庆祝/跳跃"等单次动作（目前只有 `toggle_movement_mode` 算间接动作）。
+
+### 7. idle 动画循环只覆盖 2 种动作
+[`src/app.js:506`](file:///d:/project file/Desktop_Pet/src/app.js#L506)：
+
+```js
+const idleAnims = ['jumping', 'waving'];
+```
+
+没有把更具表现力的 `celebrating` 等纳入空闲循环。
+
+### 8. 气泡队列与 `showPersistent` 冲突（潜在 Bug）
+[`src/bubble.js:11-19`](file:///d:/project file/Desktop_Pet/src/bubble.js#L11) 中 `show` 在已有气泡显示时入队；但 [`src/app.js:316, 330, 339`](file:///d:/project file/Desktop_Pet/src/app.js#L316) 多处调用 `showPersistent` 会**立即覆盖**之前的临时消息，可能造成气泡显示混乱。
+
+### 9. `Chatting/Fetching/Searching/Analyzing/Building` 缺少前端触发入口
+后端状态定义完整（[`src-tauri/src/state.rs:73-77`](file:///d:/project file/Desktop_Pet/src-tauri/src/state.rs#L73)），但前端无任何主动触发代码，只能等待适配器 hook 事件被动触发。
+
+### 10. 缺少社交性动作状态
+没有 `dance`（跳舞）、`sing`（唱歌）、`play`（玩耍）、`stretch`（伸懒腰）等可独立触发的动作状态，`PetState` 枚举完全是"工作状态驱动型"。
+
+### 11. 适配器切换未联动"编码跟随"模式
+根据 Phase 3 方案要求：CLI 状态变化时（hook 事件）应触发 `MovementMode::CodingFollow`。**当前 `adapter_registry.rs` 切换活跃适配器时未联动运动模式**，自动联动逻辑尚未实现。
+
+---
+
+## 三、建议补齐优先级
+
+| 优先级 | 任务 | 涉及文件 |
+|--------|------|----------|
+| 🔴 高 | 修复气泡 `show` / `showPersistent` 冲突 | [`src/bubble.js`](file:///d:/project file/Desktop_Pet/src/bubble.js) |
+| 🔴 高 | 适配器切换时联动 `MovementMode::CodingFollow` | `src-tauri/src/adapter_registry.rs` + [`src-tauri/src/movement.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/movement.rs) |
+| 🟡 中 | 扩展 `pet_play` 枚举覆盖全部 PetState | [`src-tauri/src/mcp.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs) |
+| 🟡 中 | 实现 `pet_play.duration_ms` 自动恢复 | [`src-tauri/src/mcp.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/mcp.rs) |
+| 🟡 中 | 补充 `Sleeping` 状态的动画资源（GIF 或 sprite） | `src/spritesheet.webp` + `src/validation.json` |
+| 🟢 低 | 新增 `trigger_animation` Tauri command | [`src-tauri/src/main.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/main.rs) |
+| 🟢 低 | 新增 REST 动作端点 `POST /api/pet/action` | [`src-tauri/src/http.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/http.rs) |
+| 🟢 低 | 扩展 idle 循环加入 `celebrating` 等动作 | [`src/app.js`](file:///d:/project file/Desktop_Pet/src/app.js) |
+| 🟢 低 | 清理或落地 `screen1` ~ `screen7` 状态 | [`src/gif-animator.js`](file:///d:/project file/Desktop_Pet/src/gif-animator.js) |
+| 🟢 低 | 补充社交性动作状态（dance/sing/play） | [`src-tauri/src/state.rs`](file:///d:/project file/Desktop_Pet/src-tauri/src/state.rs) |

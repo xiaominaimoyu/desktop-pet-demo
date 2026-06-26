@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desktop Pet - CLI 智能桌宠 Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b4e 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .hero .subtitle {
+      font-size: 1.4rem;
+      color: #94a3b8;
+      margin-bottom: 40px;
+    }
+
+    .hero .emoji-mascot {
+      font-size: 6rem;
+      margin-bottom: 20px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      color: #4ade80;
+      margin-top: 20px;
+    }
+
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Quick Start Section */
+    .quick-start {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .quick-start h2 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #a78bfa;
+    }
+
+    .exe-status {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      background: rgba(15, 15, 40, 0.6);
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .exe-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .exe-info h3 {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    .exe-info p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .run-btn {
+      margin-left: auto;
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .run-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Architecture Section */
+    .architecture {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .architecture h2 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #a78bfa;
+    }
+
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .arch-layer {
+      background: rgba(15, 15, 40, 0.8);
+      border-radius: 12px;
+      padding: 25px;
+      border-left: 4px solid #8b5cf6;
+    }
+
+    .arch-layer h3 {
+      font-size: 1.1rem;
+      color: #a78bfa;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .arch-layer ul {
+      list-style: none;
+      color: #cbd5e1;
+    }
+
+    .arch-layer li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .arch-layer li:last-child {
+      border-bottom: none;
+    }
+
+    .arch-layer .icon {
+      width: 24px;
+      text-align: center;
+    }
+
+    /* Features Grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+    }
+
+    .feature-card {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #e2e8f0;
+    }
+
+    .feature-card p {
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    /* CLI Adapters Section */
+    .adapters {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .adapters h2 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #a78bfa;
+    }
+
+    .adapter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .adapter-card {
+      background: rgba(15, 15, 40, 0.8);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .adapter-card:hover {
+      border-color: #8b5cf6;
+    }
+
+    .adapter-card .logo {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .adapter-card h4 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #e2e8f0;
+    }
+
+    .adapter-card p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .priority-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(139, 92, 246, 0.3);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #a78bfa;
+    }
+
+    /* Tech Stack */
+    .tech-stack {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .tech-stack h2 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #a78bfa;
+    }
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .tech-item {
+      padding: 12px 24px;
+      background: rgba(15, 15, 40, 0.8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .tech-item .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #8b5cf6;
+    }
+
+    /* API Endpoints */
+    .api-section {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .api-section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #a78bfa;
+    }
+
+    .endpoint-list {
+      display: grid;
+      gap: 15px;
+    }
+
+    .endpoint {
+      background: rgba(15, 15, 40, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .method {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .method.get {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+    }
+
+    .method.post {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+
+    .endpoint .path {
+      font-family: "Fira Code", monospace;
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .endpoint .desc {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    /* Project Structure */
+    .structure {
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .structure h2 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #a78bfa;
+    }
+
+    .file-tree {
+      font-family: "Fira Code", "Consolas", monospace;
+      font-size: 0.9rem;
+      background: rgba(15, 15, 40, 0.8);
+      border-radius: 12px;
+      padding: 25px;
+      overflow-x: auto;
+    }
+
+    .file-tree .folder {
+      color: #60a5fa;
+    }
+
+    .file-tree .file {
+      color: #94a3b8;
+    }
+
+    .file-tree .highlight {
+      color: #a78bfa;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: #64748b;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 60px;
+    }
+
+    .footer a {
+      color: #8b5cf6;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .exe-status {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .run-btn {
+        margin-left: 0;
+        margin-top: 20px;
+      }
+
+      .run-btn::after {
+        content: '💜';
+      }
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Interactive Pet Preview */
+    .pet-preview {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      text-align: center;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .pet-preview h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #a78bfa;
+    }
+
+    .pet-container {
+      display: inline-block;
+      position: relative;
+      width: 200px;
+      height: 220px;
+      margin: 20px auto;
+    }
+
+    .pet-sprite {
+      width: 192px;
+      height: 208px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      animation: petFloat 3s ease-in-out infinite;
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+    }
+
+    @keyframes petFloat {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+
+    .pet-speech {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 10px 20px;
+      border-radius: 15px;
+      color: #333;
+      font-size: 0.9rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      animation: speechBounce 2s ease-in-out infinite;
+    }
+
+    .pet-speech::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 10px solid transparent;
+      border-top-color: white;
+    }
+
+    @keyframes speechBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    /* State indicator */
+    .state-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .state-btn {
+      padding: 10px 20px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 10px;
+      color: #a78bfa;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .state-btn:hover {
+      background: rgba(139, 92, 246, 0.4);
+      transform: scale(1.05);
+    }
+
+    .state-btn.active {
+      background: rgba(139, 92, 246, 0.6);
+      border-color: #8b5cf6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Hero Section -->
+    <section class="hero fade-in">
+      <div class="emoji-mascot">🐱</div>
+      <h1>Desktop Pet</h1>
+      <p class="subtitle">智能感知 CLI 编码状态的桌面宠物</p>
+      <div class="status-badge">
+        <span class="dot"></span>
+        <span>Demo 已就绪</span>
+      </div>
+    </section>
+
+    <!-- Pet Preview -->
+    <section class="pet-preview fade-in">
+      <h2>🎮 桌宠预览</h2>
+      <div class="pet-container">
+        <div class="pet-speech" id="speech">桌宠已上线~</div>
+        <div class="pet-sprite" id="petSprite">🤖</div>
+      </div>
+      <div class="state-indicator">
+        <button class="state-btn" onclick="changeState('idle', this)">待机</button>
+        <button class="state-btn" onclick="changeState('waving', this)">挥手</button>
+        <button class="state-btn" onclick="changeState('running', this)">运行中</button>
+        <button class="state-btn" onclick="changeState('thinking', this)">思考</button>
+        <button class="state-btn" onclick="changeState('celebrating', this)">庆祝</button>
+        <button class="state-btn" onclick="changeState('sleeping', this)">休眠</button>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="quick-start fade-in">
+      <h2>🚀 快速启动</h2>
+      <div class="exe-status">
+        <div class="exe-icon">🎯</div>
+        <div class="exe-info">
+          <h3>Desktop Pet.exe</h3>
+          <p>已编译完成 | 版本 0.1.0 | Tauri v2 + Rust</p>
+        </div>
+        <button class="run-btn" onclick="showStartGuide()">
+          ▶ 查看启动方式
+        </button>
+      </div>
+      <div id="start-guide" style="display:none; margin-top:20px; padding:20px; background:rgba(15,15,40,0.8); border-radius:12px;">
+        <p style="color:#e2e8f0; margin-bottom:12px;"><strong>方式一：双击启动脚本（推荐）</strong></p>
+        <p style="color:#94a3b8; margin-bottom:20px;">双击项目根目录下的 <code style="background:rgba(139,92,246,0.2); padding:2px 8px; border-radius:4px;">start-desktop-pet.bat</code></p>
+
+        <p style="color:#e2e8f0; margin-bottom:12px;"><strong>方式二：直接运行 exe</strong></p>
+        <p style="color:#94a3b8; margin-bottom:20px;">打开 <code style="background:rgba(139,92,246,0.2); padding:2px 8px; border-radius:4px;">src-tauri\target\release\desktop-pet.exe</code> 双击运行</p>
+
+        <p style="color:#e2e8f0; margin-bottom:12px;"><strong>方式三：命令行启动</strong></p>
+        <div style="background:rgba(0,0,0,0.4); padding:12px; border-radius:8px; font-family:monospace; color:#a78bfa;">
+          cd "d:\project file\Desktop_Pet\src-tauri\target\release"<br>
+          .\desktop-pet.exe
+        </div>
+
+        <p style="color:#f59e0b; margin-top:20px; font-size:0.9rem;">⚠ 浏览器网页无法直接启动本地程序，请使用以上方式运行</p>
+      </div>
+      <p style="color: #94a3b8; line-height: 1.8; margin-top: 20px;">
+        <strong>运行说明：</strong><br>
+        1. 启动后桌宠将显示在屏幕右上角<br>
+        2. 右键点击桌宠打开快捷菜单<br>
+        3. 双击桌宠切换运动模式
+      </p>
+    </section>
+
+    <!-- Features -->
+    <section class="features fade-in">
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>CLI 适配器</h3>
+        <p>支持 Claude Code、opencode、Copilot、TRAE 等多种 CLI 工具的智能适配与自动切换</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎭</div>
+        <h3>双动画模式</h3>
+        <p>精灵图模式性能卓越，GIF 模式兼容现有资源，支持平滑切换</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌀</div>
+        <h3>智能移动</h3>
+        <p>自由漫游、鼠标跟随、编码跟随三种运动模式，模拟真实宠物行为</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>气泡交互</h3>
+        <p>状态气泡、消息气泡、输入气泡，支持文本、确认、选择等多种交互</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👻</div>
+        <h3>鼠标穿透</h3>
+        <p>智能点击穿透，交互时聚焦桌宠，空闲时自动穿透不遮挡操作</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛠️</div>
+        <h3>系统托盘</h3>
+        <p>完整的系统托盘集成，右键菜单控制，随时隐藏/显示</p>
+      </div>
+    </section>
+
+    <!-- Adapters -->
+    <section class="adapters fade-in">
+      <h2>🔌 工具适配器</h2>
+      <div class="adapter-grid">
+        <div class="adapter-card">
+          <div class="logo">🧠</div>
+          <h4>Claude Code</h4>
+          <p>CLI 工具，优先级最高，完整的事件钩子支持</p>
+          <span class="priority-badge">优先级 40</span>
+        </div>
+        <div class="adapter-card">
+          <div class="logo">⚡</div>
+          <h4>OpenCode CLI</h4>
+          <p>CLI 工具，新兴编码助手，完整事件映射</p>
+          <span class="priority-badge">优先级 30</span>
+        </div>
+        <div class="adapter-card">
+          <div class="logo">💻</div>
+          <h4>GitHub Copilot</h4>
+          <p>CLI 工具，终端集成，基础状态感知</p>
+          <span class="priority-badge">优先级 20</span>
+        </div>
+        <div class="adapter-card">
+          <div class="logo">🌱</div>
+          <h4>TRAE Work</h4>
+          <p>IDE 工具，国产 AI 编程助手集成</p>
+          <span class="priority-badge">优先级 10</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="architecture fade-in">
+      <h2>🏗️ 系统架构</h2>
+      <div class="arch-diagram">
+        <div class="arch-layer">
+          <h3>📊 前端层 (WebView)</h3>
+          <ul>
+            <li><span class="icon">🎨</span> 精灵图动画引擎</li>
+            <li><span class="icon">💭</span> 气泡状态系统</li>
+            <li><span class="icon">📋</span> 快捷菜单交互</li>
+            <li><span class="icon">🎮</span> 动画状态机</li>
+          </ul>
+        </div>
+        <div class="arch-layer">
+          <h3>⚙️ 后端层 (Rust)</h3>
+          <ul>
+            <li><span class="icon">🪟</span> 窗口管理 (透明/置顶)</li>
+            <li><span class="icon">🖱️</span> 鼠标穿透控制</li>
+            <li><span class="icon">📍</span> 位置保存/恢复</li>
+            <li><span class="icon">🎯</span> 移动引擎</li>
+          </ul>
+        </div>
+        <div class="arch-layer">
+          <h3>🌐 服务层 (HTTP/MCP)</h3>
+          <ul>
+            <li><span class="icon">🔌</span> HTTP :9527</li>
+            <li><span class="icon">📡</span> MCP :9528</li>
+            <li><span class="icon">🪝</span> CLI 钩子接收</li>
+            <li><span class="icon">🔄</span> 状态广播</li>
+          </ul>
+        </div>
+        <div class="arch-layer">
+          <h3>🔗 适配器层</h3>
+          <ul>
+            <li><span class="icon">🧠</span> Claude 适配器</li>
+            <li><span class="icon">⚡</span> OpenCode 适配器</li>
+            <li><span class="icon">💻</span> Copilot 适配器</li>
+            <li><span class="icon">🌱</span> TRAE 适配器</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="tech-stack fade-in">
+      <h2>🛠️ 技术栈</h2>
+      <div class="tech-grid">
+        <div class="tech-item"><span class="dot"></span> Tauri v2</div>
+        <div class="tech-item"><span class="dot"></span> Rust</div>
+        <div class="tech-item"><span class="dot"></span> Tokio</div>
+        <div class="tech-item"><span class="dot"></span> Axum</div>
+        <div class="tech-item"><span class="dot"></span> WebView</div>
+        <div class="tech-item"><span class="dot"></span> CSS Sprites</div>
+        <div class="tech-item"><span class="dot"></span> MCP Protocol</div>
+        <div class="tech-item"><span class="dot"></span> Windows API</div>
+      </div>
+    </section>
+
+    <!-- API Endpoints -->
+    <section class="api-section fade-in">
+      <h2>🔌 API 端点</h2>
+      <div class="endpoint-list">
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/api/current</span>
+          <span class="desc">获取当前状态</span>
+        </div>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="path">/api/user/input</span>
+          <span class="desc">提交用户输入</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/api/user/pending</span>
+          <span class="desc">查询待输入状态</span>
+        </div>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="path">/api/claude/*</span>
+          <span class="desc">Claude Code 钩子</span>
+        </div>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="path">/api/opencode/*</span>
+          <span class="desc">OpenCode 钩子</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Project Structure -->
+    <section class="structure fade-in">
+      <h2>📁 项目结构</h2>
+      <div class="file-tree">
+<span class="folder">desktop-pet/</span>
+├── <span class="folder">src-tauri/</span>
+│   ├── <span class="folder">src/</span>
+│   │   ├── <span class="highlight">main.rs</span>           <span class="file"># 入口：Tauri + HTTP/MCP</span>
+│   │   ├── <span class="highlight">state.rs</span>           <span class="file"># 状态机管理</span>
+│   │   ├── <span class="highlight">http.rs</span>            <span class="file"># Axum HTTP 路由</span>
+│   │   ├── <span class="highlight">mcp.rs</span>             <span class="file"># MCP 服务</span>
+│   │   ├── <span class="highlight">window.rs</span>          <span class="file"># 窗口控制</span>
+│   │   ├── <span class="highlight">tray.rs</span>            <span class="file"># 系统托盘</span>
+│   │   ├── <span class="highlight">movement.rs</span>        <span class="file"># 移动引擎</span>
+│   │   └── <span class="folder">adapter_*/</span>          <span class="file"># CLI 适配器</span>
+│   ├── <span class="folder">icons/</span>
+│   └── <span class="highlight">Cargo.toml</span>
+├── <span class="folder">src/</span>
+│   ├── <span class="highlight">index.html</span>           <span class="file"># 主页面</span>
+│   ├── <span class="highlight">app.js</span>              <span class="file"># 主逻辑</span>
+│   ├── <span class="highlight">sprite-animator.js</span>  <span class="file"># 精灵动画</span>
+│   ├── <span class="highlight">gif-animator.js</span>    <span class="file"># GIF 动画</span>
+│   ├── <span class="highlight">bubble.js</span>           <span class="file"># 气泡系统</span>
+│   └── <span class="highlight">pet.css</span>             <span class="file"># 样式</span>
+└── <span class="folder">Open_Source_Reference/</span>
+    ├── <span class="folder">ameath-master/</span>        <span class="file"># Python 桌宠参考</span>
+    └── <span class="folder">aemeath_withclaude/</span>  <span class="file"># Tauri 桌宠参考</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Desktop Pet Demo | 基于 <a href="#">ameath</a> + <a href="#">aemeath_withclaude</a> 整合开发</p>
+      <p style="margin-top: 10px; font-size: 0.85rem;">技术栈: Tauri v2 · Rust · Axum · WebView</p>
+    </footer>
+  </div>
+
+  <script>
+    // State configurations
+    const stateConfig = {
+      idle: { emoji: '🧍', speech: '待机中...' },
+      waving: { emoji: '👋', speech: '你好呀~' },
+      running: { emoji: '🏃', speech: '正在运行...' },
+      thinking: { emoji: '🤔', speech: '思考中...' },
+      celebrating: { emoji: '🎉', speech: '搞定啦!' },
+      sleeping: { emoji: '💤', speech: 'zzZ...' }
+    };
+
+    // Change pet state
+    function changeState(state, btn) {
+      const config = stateConfig[state];
+      document.getElementById('petSprite').textContent = config.emoji;
+      document.getElementById('speech').textContent = config.speech;
+
+      // Update active button
+      document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // Show start guide
+    function showStartGuide() {
+      const guide = document.getElementById('start-guide');
+      if (guide.style.display === 'none') {
+        guide.style.display = 'block';
+      } else {
+        guide.style.display = 'none';
+      }
+    }
+
+    // Initial animation
+    setTimeout(() => {
+      const pet = document.getElementById('petSprite');
+      pet.style.animation = 'petFloat 3s ease-in-out infinite';
+    }, 100);
+  </script>
+</body>
+</html>

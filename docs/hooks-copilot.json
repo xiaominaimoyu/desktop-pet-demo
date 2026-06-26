@@ -1,0 +1,70 @@
+{
+  "_comment": "GitHub Copilot CLI 桌宠 Hook 配置",
+  "_instructions": [
+    "将以下 hook 定义添加到你的 Copilot CLI hooks JSON 文件中",
+    "配置文件位置: ~/.config/github-copilot/hooks.json 或 ~/.copilot/hooks/*.json",
+    "确保 hf-dotpet 桌宠 (desktop-pet) 已启动并监听 9527 端口"
+  ],
+
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/session-start",
+        "timeoutSec": 5
+      }
+    ],
+
+    "userPromptSubmitted": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/user-prompt-submitted",
+        "timeoutSec": 5
+      }
+    ],
+
+    "preToolUse": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/pre-tool-use",
+        "timeoutSec": 5,
+        "_response": {
+          "permissionDecision": "allow"
+        }
+      }
+    ],
+
+    "postToolUse": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/post-tool-use",
+        "timeoutSec": 5
+      }
+    ],
+
+    "postToolUseFailure": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/post-tool-use-failure",
+        "timeoutSec": 5
+      }
+    ],
+
+    "sessionEnd": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/session-end",
+        "timeoutSec": 5
+      }
+    ],
+
+    "errorOccurred": [
+      {
+        "type": "http",
+        "url": "http://127.0.0.1:9527/api/copilot/error-occurred",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}

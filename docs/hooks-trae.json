@@ -1,0 +1,47 @@
+{
+  "_comment": "TRAE Work 桌宠 Hook 配置 — 将此文件复制到项目根目录 .trae/hooks.json",
+  "_instructions": [
+    "1. 将 plugins/trae/hooks/ 目录复制到项目的 .trae/hooks/",
+    "2. 将此文件复制到项目的 .trae/hooks.json",
+    "3. 确保桌宠程序已启动 (desktop-pet.exe)",
+    "4. TRAE Work 会自动加载 hooks.json 中的 Hook"
+  ],
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "name": "desktop-pet-session-start",
+        "enabled": true,
+        "command": "powershell -ExecutionPolicy Bypass -File .trae/hooks/session-start.ps1"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "name": "desktop-pet-user-prompt",
+        "enabled": true,
+        "command": "powershell -ExecutionPolicy Bypass -File .trae/hooks/user-prompt-submit.ps1"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "name": "desktop-pet-pre-tool",
+        "enabled": true,
+        "command": "powershell -ExecutionPolicy Bypass -File .trae/hooks/pre-tool-use.ps1"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "name": "desktop-pet-post-tool",
+        "enabled": true,
+        "command": "powershell -ExecutionPolicy Bypass -File .trae/hooks/post-tool-use.ps1"
+      }
+    ],
+    "Stop": [
+      {
+        "name": "desktop-pet-stop",
+        "enabled": true,
+        "command": "powershell -ExecutionPolicy Bypass -File .trae/hooks/stop.ps1"
+      }
+    ]
+  }
+}
